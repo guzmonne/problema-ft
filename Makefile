@@ -4,7 +4,9 @@ ifneq (,$(wildcard ./.env))
     export
 endif
 
-.PHONY: up down restart build
+.PHONY: up down restart build metricbeat redeploy
+
+redeploy: build up
 
 up:
 	docker-compose up -d
