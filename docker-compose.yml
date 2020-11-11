@@ -1,0 +1,125 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:2.3
+    container_name: traefik
+    command:
+      - "--log.level=DEBUG"
+      - "--log.format=json"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--api.dashboard=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.httpsresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.httpsresolver.acme.email=${EMAIL}"
+      - "--certificatesresolvers.httpsresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/local/problema-ft/traefik/letsencrypt:/letsencrypt"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.rule=Host(`${DOMAIN}`) && PathPrefix(`/traefik`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=httpsresolver"
+  api:
+    image: guzmonne/problema-ft:${VERSION}
+    container_name: api
+    volumes:
+      - /home/ec2-user/problema-ft/api:/app
+    command:
+      - "/start-reload.sh"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.tls.certresolver=httpsresolver"
+  whoami:
+    image: containous/whoami
+    container_name: whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`${DOMAIN}`) && PathPrefix(`/whoami`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=httpsresolver"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: elasticsearch
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Americas/Montevideo
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - 9200:9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /var/local/problema-ft/elasticsearch:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.3
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      - TZ=Americas/Montevideo
+      - SERVER_NAME=kibana
+      - MONITORING_ENABLED=true
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_BASEPATH=/kibana
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kibana.rule=Host(`${DOMAIN}`) && PathPrefix(`/kibana`)"
+      - "traefik.http.routers.kibana.entrypoints=websecure"
+      - "traefik.http.routers.kibana.tls.certresolver=httpsresolver"
+      - "traefik.http.middlewares.kibana.stripprefix.prefixes=/kibana"
+      - "traefik.http.routers.kibana.middlewares=kibana"
+  metricbeat-host:
+    image: docker.elastic.co/beats/metricbeat:7.9.3
+    container_name: mb-host
+    environment:
+      - "WAIT_FOR_HOSTS=elasticsearch:9200,kibana:5601"
+      - "HOST_ELASTICSEARCH=elasticsearch:9200"
+      - "HOST_KIBANA=kibana:5601"
+      - "-system.hostfs=/hostfs"
+    extra_hosts:
+      - "elasticsearch:127.0.0.1"
+      - "kibana:127.0.0.1"
+    volumes:
+      - type: bind
+        source: /proc
+        target: /hostfs/proc
+        read_only: true
+      - type: bind
+        source: /sys/fs/cgroup
+        target: /hostfs/sys/fs/cgroup
+        read_only: true
+      - type: bind
+        source: /
+        target: /hostfs
+        read_only: true
+    network_mode: host
+  metricbeat-docker:
+    image: docker.elastic.co/beats/metricbeat:7.9.3
+    container_name: mb-docker
+    environment:
+      - "output.elasticsearch.hosts=[\"elasticsearch:9200\"]"
+    user: root
+    volumes:
+      - "/var/local/problema-ft/metricbeat/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro"
+      - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
+      - "/proc:/hostfs/proc:ro"
+      - "/:/hostfs:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
