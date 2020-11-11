@@ -129,4 +129,13 @@ services:
       - "/proc:/hostfs/proc:ro"
       - "/:/hostfs:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
-
+  apm:
+    image: docker.elastic.co/apm/apm-server:7.10.0
+    restart: always
+    container_name: apm
+    user: apm-server
+    volumes:
+      - "/var/local/problema-ft/apm/apm-server.docker.yml:/usr/share/apm-server/apm-server.yml:ro"
+    command:
+      - "--strict.perms=false"
+      - "-e"

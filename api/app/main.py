@@ -4,7 +4,7 @@ from elasticapm.contrib.starlette import make_apm_client, ElasticAPM
 apm = make_apm_client({
     "SERVICE_NAME": "probema-ft-api",
     "DEBUG": True,
-    "SERVER_URL": "http://localhost:8200",
+    "SERVER_URL": "http://apm:8200",
     "CAPTURE_HEADERS": True,
     "CAPTURE_BODY": "all",
 })
