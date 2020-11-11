@@ -3,6 +3,7 @@ version: '3'
 services:
   traefik:
     image: traefik:2.3
+    restart: always
     container_name: traefik
     command:
       - "--log.level=DEBUG"
@@ -32,6 +33,7 @@ services:
   api:
     image: guzmonne/problema-ft:${VERSION}
     container_name: api
+    restart: always
     volumes:
       - /home/ec2-user/problema-ft/api:/app
     command:
@@ -42,6 +44,7 @@ services:
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=httpsresolver"
   whoami:
+    restart: always
     image: containous/whoami
     container_name: whoami
     labels:
@@ -50,6 +53,7 @@ services:
       - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.http.routers.whoami.tls.certresolver=httpsresolver"
   elasticsearch:
+    restart: always
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
     container_name: elasticsearch
     environment:
@@ -68,6 +72,7 @@ services:
     volumes:
       - /var/local/problema-ft/elasticsearch:/usr/share/elasticsearch/data
   kibana:
+    restart: always
     image: docker.elastic.co/kibana/kibana:7.9.3
     container_name: kibana
     ports:
@@ -86,6 +91,7 @@ services:
       - "traefik.http.middlewares.kibana.stripprefix.prefixes=/kibana"
       - "traefik.http.routers.kibana.middlewares=kibana"
   metricbeat-host:
+    restart: always
     image: docker.elastic.co/beats/metricbeat:7.9.3
     container_name: mb-host
     environment:
@@ -111,6 +117,7 @@ services:
         read_only: true
     network_mode: host
   metricbeat-docker:
+    restart: always
     image: docker.elastic.co/beats/metricbeat:7.9.3
     container_name: mb-docker
     environment:

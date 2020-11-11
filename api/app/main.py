@@ -1,4 +1,13 @@
 from fastapi import FastAPI
+from elasticapm.contrib.starlette import make_apm_client, ElasticAPM
+
+apm = make_apm_client({
+    "SERVICE_NAME": "probema-ft-api",
+    "DEBUG": True,
+    "SERVER_URL": "http://localhost:8200",
+    "CAPTURE_HEADERS": True,
+    "CAPTURE_BODY": "all",
+})
 
 app = FastAPI(
     title="Problema FT",
@@ -8,6 +17,8 @@ app = FastAPI(
     docs_url="/api/docs",
     redoc_url="/api/redoc",
 )
+
+app.add_middleware(ElasticAPM, client=apm)
 
 
 @app.get("/api/")
