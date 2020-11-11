@@ -37,6 +37,7 @@ services:
     environment:
       - "MELI_APP_ID=${MELI_APP_ID}"
       - "MELI_SECRET_KEY=${MELI_SECRET_KEY}"
+      - "DOMAIN=${DOMAIN}"
     volumes:
       - /home/ec2-user/problema-ft/api:/app
     command:
