@@ -23,7 +23,7 @@ services:
       - "443:443"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "/var/local/problema-ft/traefik/letsencrypt:/letsencrypt"
+      - "${PROJECT_PATH}/certificates:/letsencrypt"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.service=api@internal"
@@ -31,15 +31,15 @@ services:
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=httpsresolver"
   api:
-    image: guzmonne/problema-ft:${VERSION}
+    build: ./api
     container_name: api
     restart: always
     environment:
-      - "MELI_APP_ID=${MELI_APP_ID}"
-      - "MELI_SECRET_KEY=${MELI_SECRET_KEY}"
-      - "DOMAIN=${DOMAIN}"
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DB=${REDIS_DB}
     volumes:
-      - /home/ec2-user/problema-ft/api:/app
+      - ./api:/app
     command:
       - "/start-reload.sh"
     labels:
@@ -74,7 +74,7 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - /var/local/problema-ft/elasticsearch:/usr/share/elasticsearch/data
+      - "${PROJECT_PATH}/elasticsearch:/usr/share/elasticsearch/data"
   kibana:
     restart: always
     image: docker.elastic.co/kibana/kibana:7.9.3
@@ -82,6 +82,8 @@ services:
     ports:
       - 5601:5601
     environment:
+      - PUID=1000
+      - PGID=1000
       - TZ=Americas/Montevideo
       - SERVER_NAME=kibana
       - MONITORING_ENABLED=true
@@ -99,6 +101,9 @@ services:
     image: docker.elastic.co/beats/metricbeat:7.9.3
     container_name: mb-host
     environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Americas/Montevideo
       - "WAIT_FOR_HOSTS=elasticsearch:9200,kibana:5601"
       - "HOST_ELASTICSEARCH=elasticsearch:9200"
       - "HOST_KIBANA=kibana:5601"
@@ -125,10 +130,13 @@ services:
     image: docker.elastic.co/beats/metricbeat:7.9.3
     container_name: mb-docker
     environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Americas/Montevideo
       - "output.elasticsearch.hosts=[\"elasticsearch:9200\"]"
     user: root
     volumes:
-      - "/var/local/problema-ft/metricbeat/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro"
+      - "${PROJECT_PATH}/metricbeat/metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro"
       - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
       - "/proc:/hostfs/proc:ro"
       - "/:/hostfs:ro"
@@ -139,7 +147,19 @@ services:
     container_name: apm
     user: apm-server
     volumes:
-      - "/var/local/problema-ft/apm/apm-server.docker.yml:/usr/share/apm-server/apm-server.yml:ro"
+      - ${PROJECT_PATH}/apm/apm-server.docker.yml:/usr/share/apm-server/apm-server.yml"
+    environment:
+      - TZ=Americas/Montevideo
     command:
       - "--strict.perms=false"
       - "-e"
+  redis:
+    image: bitnami/redis
+    restart: always
+    user: root
+    container_name: redis
+    environment:
+      - TZ=Americas/Montevideo
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - "${PROJECT_PATH}/redis:/bitnami/redis/data"
