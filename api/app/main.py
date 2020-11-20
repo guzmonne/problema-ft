@@ -28,36 +28,10 @@ m = Meli()
 def read_root():
     return {"Hello": "World"}
 
-@app.get("/api/authorize", response_class=HTMLResponse)
-def get_meli_tokens():
-    return f"""
-    <html>
-        <head><title>Problema FT</title></head>
-        <body>
-            Go to <a href="{m.authorization_url}">this link</a>
-            to authorize the app.
-        </body>
-    </html>
-    """
-
 @app.get("/api/items/{item_id}")
 def read_item(item_id: str):
     return m.get_item(item_id)
 
-@app.get("/api/callback", response_class=PlainTextResponse)
-def auth_callback(code: str = None):
-    if code == None:
-        return "No code was supplied"
-    return m.get_authorization_token(code)
-
-@app.get("/api/notifications")
-def read_notifications():
-    return {"ok": "go"}
-
-@app.get("/api/user")
-def read_authenticated_user():
-    return dict(
-        user_id=m.user_id,
-        scope=m.scope,
-        expires_in=m.expires_in,
-    )
+@app.get("/api/domains/{domain_id}")
+def read_domain(domain_id: str):
+    return m.get_domain(domain_id)

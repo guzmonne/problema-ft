@@ -43,6 +43,8 @@ down:
 
 restart: down up
 
+.PHONY: up down restart recreate 
+
 metricbeat:
 	docker run \
 		--network ${DOCKER_NETWORK} \
@@ -50,4 +52,7 @@ metricbeat:
 		setup -E setup.kibana.host=kibana:5601 \
 		-E output.elasticsearch.hosts=["elasticsearch:9200"]
 
-.PHONY: up down restart recreate metricbeat
+redis:
+	docker run  --network problema-ft_default --rm --name redis-cli -it goodsmileduck/redis-cli redis-cli -h redis -p 6379
+
+.PHONY: redis metricbeat
