@@ -10,7 +10,7 @@ class Meli(object):
     items_expiration_time=timedelta(minutes=1)
     domains_expiration_time=timedelta(hours=24)
 
-    def get_data(self, key, url, expires=timedelta(minutes=1)):
+    def get_data(self, key, url, expires=timedelta(minutes=1), transform=None):
         serialized_data = r.get(key)
         if serialized_data == None:
             response = request.get(url)
@@ -27,5 +27,5 @@ class Meli(object):
 
     def get_domain(self, domain_id):
         url = self.host + f"/domains/{domain_id}/technical_specs/output"
-        print(url)
-        return self.get_data(domain_id, url, expires=self.domains_expiration_time)
+        domain = self.get_data(domain_id, url, expires=self.domains_expiration_time)
+        return domain
