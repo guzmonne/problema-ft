@@ -35,3 +35,9 @@ Todos los servicios estarán publicados bajo el mismo dominio y podrán ser acce
 | --- | --- | --- |
 | API | `/api` | API que cumple con los requirimientos propuestos en el documento `problema-ft`.
 | API Docs | `/api/docs` | Documentación de la API basado en OpenAPI. |
+| APM | `/kibana/app/apm` | Application performace monitor basado en el ELK Stack. |
+| Metrics | `/kibana/app/dashboards` | Lista de dashboards de monitoreo del sistema. |
+
+# Autor
+
+Guzmán Monné [@guzmonne](https://twitter.com/guzmonne)
