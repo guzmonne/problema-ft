@@ -2,12 +2,19 @@ from typing import List, Dict
 
 from .exceptions import CustomException
 from .meli import Meli
-from .utils import safe_get
+from .utils import safe_get, identity, natural_language
 from .models.component import Component
 from .models.attribute import Attribute
 from .models.group import Group
 from .models.item import Item
 from .models.domain import Domain
+
+OUTPUT_TRANSFORMS = dict(
+    TEXT_OUTPUT=identity,
+    NUMBER_OUTPUT=identity,
+    BOOLEAN_OUTPUT=identity,
+    NUMBER_UNIT_OUTPUT=natural_language,
+)
 
 class Items(object):
     def __init__(self):
@@ -28,7 +35,7 @@ class Items(object):
             raise DomainNotFound(domain_id)
         return domain
 
-    def merge_attributes(self, item_attributes_dict: Dict[str, Attribute], attributes: List[Attribute]) -> List[Attribute]:
+    def merge_attributes(self, item_attributes_dict: Dict[str, Attribute], attributes: List[Attribute], value_transform=identity) -> List[Attribute]:
         result = []
         for attribute in attributes:
             attribute_id = attribute.get("id", "")
@@ -39,15 +46,17 @@ class Items(object):
                 value_id=item_attribute.get("value_id", ""),
                 value_name=item_attribute.get("value_name", ""),
                 value_type=attribute.get("value_type", ""),
-                value_struct=item_attribute.get("value_struct", {}),
-                value=safe_get(item_attribute.get("values"), 0, {}),
+                value=safe_get(item_attribute.get("values"), 0),
             ))
         return result
 
     def merge_components(self, item_attributes_dict: Dict[str, Attribute], components: List[Component]) -> List[Component]:
         result = []
         for component in components:
-            attributes = self.merge_attributes(item_attributes_dict, component.get("attributes"))
+            #transform = OUTPUT_TRANSFORMS.get(component.get("component"))
+            #if transform is None:
+            #    print(component.get("component"))
+            attributes = self.merge_attributes(item_attributes_dict, component.get("attributes"), value_transform=identity)
             result.append(dict(
                 component=component.get("component"),
                 label=component.get("label"),

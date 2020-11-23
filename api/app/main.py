@@ -31,7 +31,7 @@ app.add_middleware(ElasticAPM, client=apm)
 meli = Meli()
 items = Items()
 
-@app.get("/api/items/{item_id}", response_model=FT)
+@app.get("/api/items/{item_id}", response_model=FT, response_model_exclude_unset=True)
 def read_item(item_id: str):
     return items.get_item(item_id)
 
