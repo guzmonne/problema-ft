@@ -6,6 +6,7 @@ from .items import Items
 from .meli import Meli
 from .models.item import Item
 from .models.domain import Domain
+from .models.ft import FT
 
 
 apm = make_apm_client({
@@ -30,7 +31,7 @@ app.add_middleware(ElasticAPM, client=apm)
 meli = Meli()
 items = Items()
 
-@app.get("/api/items/{item_id}")
+@app.get("/api/items/{item_id}", response_model=FT)
 def read_item(item_id: str):
     return items.get_item(item_id)
 
