@@ -12,3 +12,4 @@ class Attribute(BaseModel):
     value_type: Optional[str]
     value_struct: Optional[ValueStruct]
     values: Optional[List[Value]]
+    value: Optional[Value]

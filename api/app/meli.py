@@ -27,5 +27,4 @@ class Meli(object):
 
     def get_domain(self, domain_id):
         url = self.host + f"/domains/{domain_id}/technical_specs/output"
-        domain = self.get_data(domain_id, url, expires=self.domains_expiration_time)
-        return domain
+        return self.get_data(domain_id, url, expires=self.domains_expiration_time)
