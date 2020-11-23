@@ -2,18 +2,19 @@ from typing import List, Dict
 
 from .exceptions import CustomException
 from .meli import Meli
-from .utils import safe_get, identity, natural_language
+from .utils import safe_get, identity, add_natural_language
 from .models.component import Component
 from .models.attribute import Attribute
 from .models.group import Group
 from .models.item import Item
 from .models.domain import Domain
 
+
 OUTPUT_TRANSFORMS = dict(
     TEXT_OUTPUT=identity,
     NUMBER_OUTPUT=identity,
     BOOLEAN_OUTPUT=identity,
-    NUMBER_UNIT_OUTPUT=natural_language,
+    NUMBER_UNIT_OUTPUT=add_natural_language,
 )
 
 class Items(object):
@@ -46,17 +47,19 @@ class Items(object):
                 value_id=item_attribute.get("value_id", ""),
                 value_name=item_attribute.get("value_name", ""),
                 value_type=attribute.get("value_type", ""),
-                value=safe_get(item_attribute.get("values"), 0),
+                value=value_transform(
+                    safe_get(item_attribute.get("values"), 0)
+                ),
             ))
         return result
 
     def merge_components(self, item_attributes_dict: Dict[str, Attribute], components: List[Component]) -> List[Component]:
         result = []
         for component in components:
-            #transform = OUTPUT_TRANSFORMS.get(component.get("component"))
-            #if transform is None:
-            #    print(component.get("component"))
-            attributes = self.merge_attributes(item_attributes_dict, component.get("attributes"), value_transform=identity)
+            transform = OUTPUT_TRANSFORMS.get(component.get("component"))
+            if transform is None:
+                continue
+            attributes = self.merge_attributes(item_attributes_dict, component.get("attributes"), value_transform=transform)
             result.append(dict(
                 component=component.get("component"),
                 label=component.get("label"),
