@@ -36,7 +36,7 @@ Todos los servicios estarán publicados bajo el mismo dominio y podrán ser acce
 | API | `/api` | API que cumple con los requirimientos propuestos en el documento `problema-ft`.
 | API Docs | [`/api/docs`](https://ft.terminalbyte.cloud) | Documentación de la API basado en OpenAPI. |
 | APM | [`/kibana/app/apm`](https://ft.terminalbyte.cloud/kibana/app/apm) | Application performace monitor basado en el ELK Stack. |
-| Metrics | [`/kibana/app/dashboards`](https://ft.terminalbyte.cloud/kibana/app/dashboards) | Lista de dashboards de monitoreo del sistema. |
+| System Dashboards | [`/kibana/app/dashboards`](https://ft.terminalbyte.cloud/kibana/app/dashboards) | Lista de dashboards de monitoreo del sistema. |
 
 ## `.env`
 
