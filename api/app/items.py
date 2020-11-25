@@ -40,7 +40,9 @@ class Items(object):
         result = []
         for attribute in attributes:
             attribute_id = attribute.get("id", "")
-            item_attribute = item_attributes_dict.get(attribute_id, {})
+            item_attribute = item_attributes_dict.get(attribute_id)
+            if item_attribute is None:
+                continue
             result.append(dict(
                 id=attribute.get("id", ""),
                 name=attribute.get("name", ""),
@@ -60,6 +62,8 @@ class Items(object):
             if transform is None:
                 continue
             attributes = self.merge_attributes(item_attributes_dict, component.get("attributes"), value_transform=transform)
+            if len(attributes) == 0:
+                continue
             result.append(dict(
                 component=component.get("component"),
                 label=component.get("label"),
