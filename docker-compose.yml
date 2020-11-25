@@ -47,15 +47,6 @@ services:
       - "traefik.http.routers.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=httpsresolver"
-  whoami:
-    restart: always
-    image: containous/whoami
-    container_name: whoami
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whoami.rule=Host(`${DOMAIN}`) && PathPrefix(`/whoami`)"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls.certresolver=httpsresolver"
   elasticsearch:
     restart: always
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
