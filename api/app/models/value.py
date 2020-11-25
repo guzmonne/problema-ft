@@ -5,6 +5,6 @@ from .value_struct import ValueStruct
 
 class Value(BaseModel):
     id: Optional[str]
-    name: str
+    name: Optional[str]
     struct: Optional[ValueStruct]
     natural_language: Optional[str]

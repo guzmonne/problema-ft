@@ -10,7 +10,6 @@ services:
       - "--log.format=json"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
-      - "--api.dashboard=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
@@ -26,13 +25,10 @@ services:
       - "${PROJECT_PATH}/certificates:/letsencrypt"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.rule=Host(`${DOMAIN}`) && PathPrefix(`/traefik`)"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.tls.certresolver=httpsresolver"
   api:
     build: ./api
-    container_name: api
+    deploy:
+      replicas: ${API_REPLICAS}
     restart: always
     environment:
       - REDIS_HOST=${REDIS_HOST}
@@ -40,8 +36,6 @@ services:
       - REDIS_DB=${REDIS_DB}
     volumes:
       - ./api:/app
-    command:
-      - "/start-reload.sh"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"

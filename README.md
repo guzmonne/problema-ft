@@ -38,6 +38,19 @@ Todos los servicios estarán publicados bajo el mismo dominio y podrán ser acce
 | APM | `/kibana/app/apm` | Application performace monitor basado en el ELK Stack. |
 | Metrics | `/kibana/app/dashboards` | Lista de dashboards de monitoreo del sistema. |
 
+## `.env`
+
+```
+DOMAIN=somewhere.com
+PROJECT_PATH=/var/local/problema-ft
+REDIS_HOST=redis
+REDIS_PORT=6379
+REDIS_DB=0
+EMAIL=example@somewhere.com
+DOCKER_NETWORK=problema-ft_default
+API_REPLICAS=4
+```
+
 # Autor
 
 Guzmán Monné [@guzmonne](https://twitter.com/guzmonne)

@@ -103,7 +103,6 @@ def single_digit_translator(number: str) -> str:
     return NUMBERS_CACHE.get(number)
 
 def double_digit_translator(number: str) -> str:
-    print(number)
     cached_number = NUMBERS_CACHE.get(number)
     if cached_number != None:
         return cached_number
@@ -139,16 +138,18 @@ def add_natural_language(value: Value) -> Value:
     """Adds a natural_language key to a value object"""
     if value is None:
         return
-    struct = value.get("struct", {})
-    number = struct.get("number", 0)
-    result = []
-    for (chunk, index) in number_chunks(number, 3):
-        result.append(to_natural_language(chunk, index))        
-        print(f"{chunk}\t{index}\t{result}")
-    natural_language = " ".join(result[::-1])
-    natural_language = re.sub(r"^uno\s|\sy\scero", "", natural_language)
-    natural_language = re.sub(r"uno(?!$)", "un", natural_language)
-    natural_language = re.sub(r"\s\s", " ", natural_language)
-    value["natural_language"] = natural_language.strip()
-    return value    
+    try:
+        struct = value.get("struct", {})
+        number = struct.get("number", 0)
+        result = []
+        for (chunk, index) in number_chunks(number, 3):
+            result.append(to_natural_language(chunk, index))        
+        natural_language = " ".join(result[::-1])
+        natural_language = re.sub(r"^uno\s|\sy\scero", "", natural_language)
+        natural_language = re.sub(r"uno(?!$)", "un", natural_language)
+        natural_language = re.sub(r"\s\s", " ", natural_language)
+        value["natural_language"] = natural_language.strip()
+        return value 
+    except Exception:
+        return value  
     
