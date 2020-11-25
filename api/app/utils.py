@@ -1,6 +1,5 @@
 import re
 from typing import Any, List, Tuple
-from random import randint
 from .models.value import Value
 
 def safe_get(l: Any, i: int, default=None) -> Any:
@@ -141,8 +140,7 @@ def add_natural_language(value: Value) -> Value:
     if value is None:
         return
     struct = value.get("struct", {})
-    # number = struct.get("number", 0)
-    number = randint(0, 999_999_999_999_999_999)
+    number = struct.get("number", 0)
     result = []
     for (chunk, index) in number_chunks(number, 3):
         result.append(to_natural_language(chunk, index))        
